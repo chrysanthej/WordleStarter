@@ -6,6 +6,7 @@ BE SURE TO UPDATE THIS COMMENT WHEN YOU WRITE THE CODE.
 """
 
 #This is my addition
+# and this is mine
 
 import random
 
