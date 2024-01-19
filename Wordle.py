@@ -77,6 +77,9 @@ def wordle():
         else:
             gw.show_message("Not in word list")
 
+            current_guess = ""
+            gw.set_current_row(current_row)
+
     # MILESTONE 1
     # Display the random word in the first row
     # for col, letter in enumerate(random_word):
