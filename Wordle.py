@@ -4,7 +4,7 @@
 
 # To do:
 # 1. Allow users to use the backspace button on keyboard (works on screen)
-# 2. If word is not in word list, allow users to type in a new word
+
 # 3. Stop user from making any entries after word is guessed
 # 4. Implement get_current_row..?
 # 5. Implement N_ROWS and N_COLS
