@@ -41,19 +41,40 @@ def wordle():
             # Milestone 2 - verify current_guess is a word and show the message
             #gw.show_message("That is a word!")
 
+
             # Enummerate iterates over each letter in current_guess and their indices
             # The index is assigned to 'col' and the letter is assigned to 'guess_letter'
-            for col, guess_letter in enumerate(current_guess.lower()):
+            # used_letters = set()
+            # for col, guess_letter in enumerate(current_guess.lower()):
                 
-                # Associates word_letter with the letter in the correct position within the column corresponding to the current iteration in word_to_guess.      
+            #     # Associates word_letter with the letter in the correct position within the column corresponding to the current iteration in word_to_guess.      
+            #     word_letter = word_to_guess[col]
+
+            #     # Checks if the guessed letter is in the right spot
+            #     if guess_letter == word_letter:
+            #         gw.set_square_color(current_row, col, CORRECT_COLOR)
+            #         used_letters.add(guess_letter)
+            #     # Checks if the guessed letter is in the word_to_guess
+            #     elif guess_letter in word_to_guess and guess_letter not in used_letters:
+            #         gw.set_square_color(current_row, col, PRESENT_COLOR)
+            #         used_letters.add(guess_letter)
+            #     # Guessed letter is not in the word_to_guess
+            #     else:
+            #         gw.set_square_color(current_row, col, MISSING_COLOR)
+            used_letters = set()
+            for col, guess_letter in enumerate(current_guess.lower()):
+
+                # Associates word_letter with the letter in the correct position within the column corresponding to the current iteration in word_to_guess.
                 word_letter = word_to_guess[col]
 
                 # Checks if the guessed letter is in the right spot
                 if guess_letter == word_letter:
                     gw.set_square_color(current_row, col, CORRECT_COLOR)
+                    used_letters.add(guess_letter)
                 # Checks if the guessed letter is in the word_to_guess
-                elif guess_letter in word_to_guess:
+                elif guess_letter in word_to_guess and guess_letter not in used_letters:
                     gw.set_square_color(current_row, col, PRESENT_COLOR)
+                    used_letters.add(guess_letter)
                 # Guessed letter is not in the word_to_guess
                 else:
                     gw.set_square_color(current_row, col, MISSING_COLOR)
