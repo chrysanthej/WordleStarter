@@ -8,7 +8,6 @@
 # 3. Stop user from making any entries after word is guessed
 # 4. Implement get_current_row..?
 # 5. Implement N_ROWS and N_COLS
-# 6. Milestone 4
 
 import random
 
@@ -90,6 +89,6 @@ def wordle():
     gw.add_enter_listener(enter_action)
 
 # Startup code
-
+    
 if __name__ == "__main__":
     wordle()
