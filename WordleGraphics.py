@@ -16,7 +16,9 @@ N_ROWS = 6			# Number of rows
 N_COLS = 5			# Number of columns
 
 CORRECT_COLOR = "#66BB66"       # Light green for correct letters
+CORRECT_COLOR_CB = "#0000FF"    # Blue for correct letter for color blind mode
 PRESENT_COLOR = "#CCBB66"       # Brownish yellow for misplaced letters
+PRESENT_COLOR_CB = "#FFA500"    # Orange for misplaced letters color blind mode
 MISSING_COLOR = "#999999"       # Gray for letters that don't appear
 UNKNOWN_COLOR = "#FFFFFF"       # Undetermined letters are white
 KEY_COLOR = "#DDDDDD"           # Keys are colored light gray
@@ -97,20 +99,24 @@ class WordleGWindow:
 
 
         def key_action(tke):
-            #print(tke) - TESTING
+            #print(tke)
 
             if isinstance(tke, str):
                 ch = tke.upper()
+            
+            elif hasattr(tke, 'keysym'):
+                ch = tke.keysym.upper()
+
             else:
                 ch = tke.char.upper()
 
-            if ch == "DELETE" or ch == "\x08":
+            if ch == "DELETE" or ch == "\x08" or ch == "BACKSPACE":
                 self.show_message("")
                 if self._row < N_ROWS and self._col > 0:
                     self._col -= 1
                     sq = self._grid[self._row][self._col]
                     sq.set_letter(" ")
-            elif ch == "\r" or ch == "\n" or ch == "ENTER":
+            elif ch == "\r" or ch == "\n"  or ch == "RETURN" or ch == "ENTER":
                 self.show_message("")
                 s = ""
                 for col in range(N_COLS):
