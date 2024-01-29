@@ -12,7 +12,7 @@
 import random
 
 from WordleDictionary import FIVE_LETTER_WORDS
-from WordleGraphics import WordleGWindow, N_COLS, N_ROWS, CORRECT_COLOR, PRESENT_COLOR, MISSING_COLOR, CB_CORRECT_COLOR
+from WordleGraphics import WordleGWindow, N_COLS, N_ROWS, CORRECT_COLOR, PRESENT_COLOR, MISSING_COLOR, CORRECT_COLOR_CB, PRESENT_COLOR_CB
 
 def wordle():
 
@@ -70,13 +70,16 @@ def wordle():
                 # Checks if the guessed letter is in the right spot
                 if guess_letter == word_letter:
                     if gw._is_colorblind:
-                        gw.set_square_color(current_row, col, CB_CORRECT_COLOR)
+                        gw.set_square_color(current_row, col, CORRECT_COLOR_CB)
                     else:
                         gw.set_square_color(current_row, col, CORRECT_COLOR)
                     used_letters.add(guess_letter)
                 # Checks if the guessed letter is in the word_to_guess
                 elif guess_letter in word_to_guess and guess_letter not in used_letters:
-                    gw.set_square_color(current_row, col, PRESENT_COLOR)
+                    if gw._is_colorblind:
+                        gw.set_square_color(current_row, col, PRESENT_COLOR_CB)
+                    else:
+                        gw.set_square_color(current_row, col, PRESENT_COLOR)
                     used_letters.add(guess_letter)
                 # Guessed letter is not in the word_to_guess
                 else:

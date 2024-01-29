@@ -23,9 +23,6 @@ MISSING_COLOR = "#999999"       # Gray for letters that don't appear
 UNKNOWN_COLOR = "#FFFFFF"       # Undetermined letters are white
 KEY_COLOR = "#DDDDDD"           # Keys are colored light gray
 
-# Colorblind mode colors
-CB_CORRECT_COLOR = "#ff2a00"
-
 CANVAS_WIDTH = 500		# Width of the tkinter canvas (pixels)
 CANVAS_HEIGHT = 750		# Height of the tkinter canvas (pixels)
 
@@ -109,6 +106,7 @@ class WordleGWindow:
 
         def key_action(tke):
             print(tke)
+            print(self._is_colorblind)
 
             if isinstance(tke, str):
                 ch = tke.upper()
@@ -190,7 +188,7 @@ class WordleGWindow:
         self._message = create_message()
         self._keys = create_keyboard()
         self._button = create_colorblind_button()
-        self._is_colorblind = False
+        self._is_colorblind = self._button._is_colorblind
         self._enter_listeners = [ ]
         root.bind("<Key>", key_action)
         root.bind("<ButtonPress-1>", press_action)
@@ -237,6 +235,7 @@ class WordleGWindow:
         return self._is_colorblind
     
     def toggle_colorblind_mode(self):
+        print("toggled colorblind mode")
         self._is_colorblind = not self._is_colorblind
 
         self._button.set_colorblind_status(self._is_colorblind)
@@ -363,7 +362,6 @@ class WordleButton:
                                         y0 + BUTTON_HEIGHT / 2,
                                         text="Colorblind Mode")
         self._canvas.itemconfig(self._button, fill=KEY_COLOR)
-        self._is_colorblind = False 
         canvas.tag_bind(self._button, '<Button-1>', self.on_click)
         canvas.tag_bind(self._text, '<Button-1>', self.on_click)
 
