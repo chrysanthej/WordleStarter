@@ -27,11 +27,11 @@ KEY_COLOR = "#DDDDDD"           # Keys are colored light gray
 CB_CORRECT_COLOR = "#ff2a00"
 
 CANVAS_WIDTH = 500		# Width of the tkinter canvas (pixels)
-CANVAS_HEIGHT = 700		# Height of the tkinter canvas (pixels)
+CANVAS_HEIGHT = 750		# Height of the tkinter canvas (pixels)
 
 SQUARE_SIZE = 60		# Size of each square (pixels)
 SQUARE_SEP = 5                  # Separation between squares (pixels)
-TOP_MARGIN = 30    		# Top margin (pixels)
+TOP_MARGIN = 100    		# Top margin (pixels)
 BOTTOM_MARGIN = 30    		# Bottom margin (pixels)
 MESSAGE_SEP = 20                # Space between board and message center
 
@@ -62,6 +62,9 @@ BOARD_WIDTH = N_COLS * SQUARE_SIZE + (N_COLS - 1) * SQUARE_SEP
 BOARD_HEIGHT = N_ROWS * SQUARE_SIZE + (N_ROWS - 1) * SQUARE_SEP
 MESSAGE_X = CANVAS_WIDTH / 2
 MESSAGE_Y = TOP_MARGIN + BOARD_HEIGHT + MESSAGE_SEP
+
+BUTTON_WIDTH = 125
+BUTTON_HEIGHT = 60
 
 class WordleGWindow:
     """This class creates the Wordle window."""
@@ -94,6 +97,9 @@ class WordleGWindow:
                     keys[label] = WordleKey(self._canvas, x, y, w, h, label)
                     x += w + KEY_XSEP
             return keys
+        
+        def create_colorblind_button():
+            return WordleButton(self._canvas)
 
         def create_message():
             return WordleMessage(self._canvas,
@@ -102,7 +108,7 @@ class WordleGWindow:
 
 
         def key_action(tke):
-            #print(tke)
+            print(tke)
 
             if isinstance(tke, str):
                 ch = tke.upper()
@@ -115,6 +121,7 @@ class WordleGWindow:
 
             if ch == "DELETE" or ch == "\x08" or ch == "BACKSPACE":
                 self.show_message("")
+                print("backspace")
                 if self._row < N_ROWS and self._col > 0:
                     self._col -= 1
                     sq = self._grid[self._row][self._col]
@@ -128,10 +135,14 @@ class WordleGWindow:
                     fn(s)
             elif ch.isalpha():
                 self.show_message("")
+                print("is aplha pressed")
                 if self._row < N_ROWS and self._col < N_COLS:
                     sq = self._grid[self._row][self._col]
                     sq.set_letter(ch)
                     self._col += 1
+            else:
+                self.toggle_colorblind_mode()
+                print("Toggled colorblind mode")
 
         def press_action(tke):
             self._down_x = tke.x
@@ -161,6 +172,8 @@ class WordleGWindow:
         def start_event_loop():
             """Starts the tkinter event loop when the program exits."""
             root.mainloop()
+        
+
 
         root = tkinter.Tk()
         root.title("Wordle")
@@ -176,6 +189,8 @@ class WordleGWindow:
         self._grid = create_grid()
         self._message = create_message()
         self._keys = create_keyboard()
+        self._button = create_colorblind_button()
+        self._is_colorblind = False
         self._enter_listeners = [ ]
         root.bind("<Key>", key_action)
         root.bind("<ButtonPress-1>", press_action)
@@ -217,6 +232,14 @@ class WordleGWindow:
 
     def show_message(self, msg, color="Black"):
         self._message.set_text(msg, color)
+
+    def get_colorblind_status(self):
+        return self._is_colorblind
+    
+    def toggle_colorblind_mode(self):
+        self._is_colorblind = not self._is_colorblind
+
+        self._button.set_colorblind_status(self._is_colorblind)
 
 
 class WordleSquare:
@@ -324,3 +347,38 @@ class WordleMessage:
     def set_text(self, text, color="Black"):
         self._text = text
         self._canvas.itemconfigure(self._msg, text=text, fill=color)
+
+class WordleButton:
+
+    _is_colorblind = False
+    def __init__(self, canvas):
+        x0 = CANVAS_WIDTH - BUTTON_WIDTH - 15
+        y0 = 15
+        x1 = x0 + BUTTON_WIDTH
+        y1 = y0 + BUTTON_HEIGHT
+        self._canvas = canvas
+        self._text = ""
+        self._button = canvas.create_rectangle(x0, y0, x1, y1)
+        self._text = canvas.create_text(x0 + BUTTON_WIDTH / 2,
+                                        y0 + BUTTON_HEIGHT / 2,
+                                        text="Colorblind Mode")
+        self._canvas.itemconfig(self._button, fill=KEY_COLOR)
+        self._is_colorblind = False 
+        canvas.tag_bind(self._button, '<Button-1>', self.on_click)
+        canvas.tag_bind(self._text, '<Button-1>', self.on_click)
+
+
+    def on_click(self, event):
+        print("on click ran")
+        if self._is_colorblind:
+            self._is_colorblind = False
+        else:
+            self._is_colorblind = True 
+        print("colorblind status is now:")
+        print(self._is_colorblind)
+
+    def get_status(self):
+        return self._is_colorblind
+    
+    def set_colorblind_status(self, status):
+        self._is_colorblind = status

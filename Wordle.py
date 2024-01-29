@@ -69,7 +69,10 @@ def wordle():
 
                 # Checks if the guessed letter is in the right spot
                 if guess_letter == word_letter:
-                    gw.set_square_color(current_row, col, CORRECT_COLOR)
+                    if gw._is_colorblind:
+                        gw.set_square_color(current_row, col, CB_CORRECT_COLOR)
+                    else:
+                        gw.set_square_color(current_row, col, CORRECT_COLOR)
                     used_letters.add(guess_letter)
                 # Checks if the guessed letter is in the word_to_guess
                 elif guess_letter in word_to_guess and guess_letter not in used_letters:
