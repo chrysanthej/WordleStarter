@@ -106,7 +106,6 @@ class WordleGWindow:
 
         def key_action(tke):
             print(tke)
-            print(self._is_colorblind)
 
             if isinstance(tke, str):
                 ch = tke.upper()
@@ -138,9 +137,6 @@ class WordleGWindow:
                     sq = self._grid[self._row][self._col]
                     sq.set_letter(ch)
                     self._col += 1
-            else:
-                self.toggle_colorblind_mode()
-                print("Toggled colorblind mode")
 
         def press_action(tke):
             self._down_x = tke.x
@@ -162,6 +158,9 @@ class WordleGWindow:
                 if x >= kx and x <= kx + kw and y >= ky and y <= ky + kh:
                     return key
             return None
+        
+        def button_clicked(event):
+            print("button was clicked")
 
         def delete_window():
             """Closes the window and exits from the event loop."""
@@ -170,8 +169,6 @@ class WordleGWindow:
         def start_event_loop():
             """Starts the tkinter event loop when the program exits."""
             root.mainloop()
-        
-
 
         root = tkinter.Tk()
         root.title("Wordle")
@@ -187,14 +184,14 @@ class WordleGWindow:
         self._grid = create_grid()
         self._message = create_message()
         self._keys = create_keyboard()
-        self._button = create_colorblind_button()
-        self._is_colorblind = self._button._is_colorblind
+        self._button = WordleButton(self._canvas, self.toggle_colorblind, self)
         self._enter_listeners = [ ]
         root.bind("<Key>", key_action)
         root.bind("<ButtonPress-1>", press_action)
         root.bind("<ButtonRelease-1>", release_action)
         self._row = 0
         self._col = 0
+        self._is_colorblind = False # Initializes the colorblind state
         atexit.register(start_event_loop)
 
     def get_square_letter(self, row, col):
@@ -230,16 +227,35 @@ class WordleGWindow:
 
     def show_message(self, msg, color="Black"):
         self._message.set_text(msg, color)
-
-    def get_colorblind_status(self):
-        return self._is_colorblind
     
-    def toggle_colorblind_mode(self):
-        print("toggled colorblind mode")
+    def toggle_colorblind(self):
         self._is_colorblind = not self._is_colorblind
+        print(self._is_colorblind)
+        self.update_colors()
 
-        self._button.set_colorblind_status(self._is_colorblind)
+    def update_colors(self):
+        for row in range(N_ROWS):
+            for col in range(N_COLS):
+                current_color = self.get_square_color(row, col)
+                updated_color = self.get_updated_color(current_color)
+                self.set_square_color(row, col, updated_color)
 
+    def get_updated_color(self, color):
+        if self._is_colorblind:
+            # Return color for colorblind mode
+            if color == CORRECT_COLOR:
+                return CORRECT_COLOR_CB
+            elif color == PRESENT_COLOR:
+                return PRESENT_COLOR_CB
+            else:
+                return color  # Keep other colors unchanged in colorblind mode
+        else:
+            # Return color for regular mode
+            if color == CORRECT_COLOR_CB:
+                return CORRECT_COLOR
+            elif color == PRESENT_COLOR_CB:
+                return PRESENT_COLOR
+            return color
 
 class WordleSquare:
 
@@ -349,34 +365,25 @@ class WordleMessage:
 
 class WordleButton:
 
-    _is_colorblind = False
-    def __init__(self, canvas):
+    def __init__(self, canvas, toggle_method, window):
         x0 = CANVAS_WIDTH - BUTTON_WIDTH - 15
         y0 = 15
         x1 = x0 + BUTTON_WIDTH
         y1 = y0 + BUTTON_HEIGHT
         self._canvas = canvas
+        self._wordle_window = window
         self._text = ""
-        self._button = canvas.create_rectangle(x0, y0, x1, y1)
+        self._toggle_method = toggle_method
+        self._button = canvas.create_rectangle(x0, y0, x1, y1, tags="toggle_button")
         self._text = canvas.create_text(x0 + BUTTON_WIDTH / 2,
                                         y0 + BUTTON_HEIGHT / 2,
-                                        text="Colorblind Mode")
+                                        text="Colorblind Mode",
+                                        tags="toggle_button")
         self._canvas.itemconfig(self._button, fill=KEY_COLOR)
-        canvas.tag_bind(self._button, '<Button-1>', self.on_click)
-        canvas.tag_bind(self._text, '<Button-1>', self.on_click)
+        self._canvas.tag_bind("toggle_button", "<Button-1>", self.toggle_button_clicked)
+        print("button initialized")
 
-
-    def on_click(self, event):
-        print("on click ran")
-        if self._is_colorblind:
-            self._is_colorblind = False
-        else:
-            self._is_colorblind = True 
-        print("colorblind status is now:")
-        print(self._is_colorblind)
-
-    def get_status(self):
-        return self._is_colorblind
-    
-    def set_colorblind_status(self, status):
-        self._is_colorblind = status
+    def toggle_button_clicked(self, event):
+        print("inner toggle_button_clicked method called")
+        self._toggle_method()
+        self._wordle_window.update_colors()
